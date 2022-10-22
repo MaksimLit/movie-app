@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Movie{% endblock %}
+
+{% block body %}
+    {{ include('movie/_menu.html.twig') }}
+    <div class="container-sm mt-5">
+        <div class="container-fluid w-50">
+            <form action="{{ path('app_movie_search') }}" method="get">
+                <div class="input-group">
+                    <input type="search" class="form-control rounded" name="name" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
+                    <button type="submit" class="btn btn-outline-primary">search</button>
+                </div>
+            </form>
+        </div>
+        {% if movies|length > 0 %}
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Poster</th>
+                    <th scope="col">Title</th>
+                    {#                        <th scope="col">Description</th>#}
+                    <th scope="col">Year</th>
+                    <th scope="col">IMDB</th>
+                    <th scope="col">KP</th>
+                    <th scope="col">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for key, movie in movies %}
+                    <tr>
+                        <th scope="row">{{ key + 1 }}</th>
+                        <td>
+                            <img src="{{ movie.posterUrl }}" alt="Poster" width="100" height="150">
+                        </td>
+                        <td>{{ movie.name }}</td>
+                        {#                            <td>{{ movie.desc }}</td>#}
+                        <td>{{ movie.year }}</td>
+                        <td>{{ movie.ratingImdb }}</td>
+                        <td>{{ movie.ratingKp }}</td>
+                        <td>
+                            {% if movie.included == false %}
+                                <button onclick="addToList('{{ movie.kpId }}', '{{ movie.name }}', '{{ movie.year }}', '{{ movie.description }}', '{{ movie.ratingImdb }}', '{{ movie.ratingKp }}', '{{ movie.posterUrl }}')" class="btn btn-primary" type="button">Add</button>
+                            {% else %}
+                                <a class="btn btn-success" href="{{ path('app_movie_list') }}">My list</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        function addToList(kpId, name, year, desc, ratingImdb, ratingKp, posterUrl) {
+            fetch('{{ path('app_movie_add') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type':'application/x-www-form-urlencoded',
+                },
+                body: `kpId=${kpId}&name=${name}&year=${year}&desc=${desc}&ratingImdb=${ratingImdb}&ratingkp=${ratingKp}&posterUrl=${posterUrl}`
+            })
+        }
+    </script>
+{% endblock javascripts %}

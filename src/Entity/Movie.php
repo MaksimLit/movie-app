@@ -39,6 +39,8 @@ class Movie
     #[ORM\Column(length: 128)]
     private string $posterUrl;
 
+    private bool $isIncluded;
+
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'movies')]
     private Collection $viewers;
 
@@ -127,6 +129,18 @@ class Movie
     public function setPosterUrl(string $posterUrl): self
     {
         $this->posterUrl = $posterUrl;
+
+        return $this;
+    }
+
+    public function isIncluded(): bool
+    {
+        return $this->isIncluded;
+    }
+
+    public function setIsIncluded(bool $isIncluded): self
+    {
+        $this->isIncluded = $isIncluded;
 
         return $this;
     }
