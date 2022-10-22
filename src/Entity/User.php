@@ -6,6 +6,8 @@ namespace App\Entity;
 use App\Entity\Traits\IdTrait;
 use App\Entity\Traits\TimestampTrait;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -32,6 +34,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
+
+    #[ORM\ManyToMany(targetEntity: Movie::class, mappedBy: 'viewers')]
+    private Collection $movies;
+
+    public function __construct()
+    {
+        $this->movies = new ArrayCollection();
+    }
 
     public function getEmail(): ?string
     {
@@ -96,5 +106,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    /**
+     * @return Collection<int, Movie>
+     */
+    public function getMovies(): Collection
+    {
+        return $this->movies;
+    }
+
+    public function addMovie(Movie $movie): self
+    {
+        if (!$this->movies->contains($movie)) {
+            $this->movies->add($movie);
+            $movie->addViewer($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMovie(Movie $movie): self
+    {
+        if ($this->movies->removeElement($movie)) {
+            $movie->removeViewer($this);
+        }
+
+        return $this;
     }
 }
