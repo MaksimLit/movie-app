@@ -2,20 +2,38 @@
 
 {% block title %}Movie list{% endblock %}
 
+{% block stylesheets %}
+    <style>
+        .movie-desc {
+            height: 132px;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     {{ include('movie/_menu.html.twig') }}
 
     {% for key, movie in movies %}
-        <div class="card">
-            <h5 class="card-header">{{ movie.name }}</h5>
-            <div class="card-body">
-                <p class="card-text">{{ movie.description }}</p>
-                <div class="">
-                    <div>{{ movie.year }}</div>
-                    <div></div>
-                    <div></div>
+        <div class="card mt-3 p-1">
+            <div class="row g-0">
+                <div class="col-md-2">
+                    <img src="{% if movie.posterUrl %} {{ movie.posterUrl}} {% else %} {{ asset('images/default-movie.png')}} {% endif %}"
+                         alt="Poster"
+                         width="185"
+                         height="275">
                 </div>
-                {{ include('movie/_delete_form.html.twig') }}
+                <div class="col-md-10">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ movie.name }}</h5>
+                        <p class="card-text movie-desc">{{ movie.description }}</p>
+                        <div class="d-flex justify-content-start">
+                            <p class="card-text"><small class="text-muted">kinopoisk: {{ movie.ratingKp }} | </small></p>
+                            <p class="card-text"><small class="text-muted">IMDB: {{ movie.ratingImdb }} | </small></p>
+                            <p class="card-text"><small class="text-muted">year: {{ movie.year }}</small></p>
+                        </div>
+                        {{ include('movie/_delete_form.html.twig') }}
+                    </div>
+                </div>
             </div>
         </div>
     {% else %}
