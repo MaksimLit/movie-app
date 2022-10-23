@@ -2,10 +2,31 @@
 
 {% block title %}New Movie{% endblock %}
 
+{% block stylesheets %}
+    <style>
+        .movie-desc {
+            height: 117px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -moz-box;
+            -moz-box-orient: vertical;
+            display: -webkit-box;
+            -webkit-line-clamp: 5;
+            -webkit-box-orient: vertical;
+            line-clamp: 5;
+            box-orient: vertical;
+        }
+
+        .search-from {
+            max-width: 1090px;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     {{ include('movie/_menu.html.twig') }}
     <div class="container-sm mt-5">
-        <div class="container-fluid w-50">
+        <div class="search-from">
             <form action="{{ path('app_movie_search') }}" method="get">
                 <div class="input-group">
                     <input type="search" class="form-control rounded" name="name" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
@@ -13,57 +34,93 @@
                 </div>
             </form>
         </div>
+
         {% if movies|length > 0 %}
-            <table class="table">
-                <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Poster</th>
-                    <th scope="col">Title</th>
-                    {#                        <th scope="col">Description</th>#}
-                    <th scope="col">Year</th>
-                    <th scope="col">IMDB</th>
-                    <th scope="col">KP</th>
-                    <th scope="col">Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for key, movie in movies %}
-                    <tr>
-                        <th scope="row">{{ key + 1 }}</th>
-                        <td>
-                            <img src="{{ movie.posterUrl }}" alt="Poster" width="100" height="150">
-                        </td>
-                        <td>{{ movie.name }}</td>
-                        {#                            <td>{{ movie.desc }}</td>#}
-                        <td>{{ movie.year }}</td>
-                        <td>{{ movie.ratingImdb }}</td>
-                        <td>{{ movie.ratingKp }}</td>
-                        <td>
-                            {% if movie.included == false %}
-                                <button onclick="addToList('{{ movie.kpId }}', '{{ movie.name }}', '{{ movie.year }}', '{{ movie.description }}', '{{ movie.ratingImdb }}', '{{ movie.ratingKp }}', '{{ movie.posterUrl }}')" class="btn btn-primary" type="button">Add</button>
-                            {% else %}
-                                <a class="btn btn-success" href="{{ path('app_movie_list') }}">My list</a>
-                            {% endif %}
-                        </td>
-                    </tr>
+            <div class="d-flex align-content-around flex-wrap">
+                {% for movie in movies %}
+                        <div class="card mt-3 p-1" style="width: 540px; margin-right: 10px">
+                            <div class="row g-0">
+                                <div class="col-md-4">
+                                    <img src="{% if movie.posterUrl %} {{ movie.posterUrl}} {% else %} {{ asset('images/default-movie.png')}} {% endif %}"
+                                         alt="Poster"
+                                         width="185"
+                                         height="275">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ movie.name }}</h5>
+                                        <p class="card-text movie-desc">{{ movie.description }}</p>
+                                        <div class="d-flex justify-content-between">
+                                            <p class="card-text"><small class="text-muted">kinopoisk: {{ movie.ratingKp }}</small></p>
+                                            <p class="card-text"><small class="text-muted">IMDB: {{ movie.ratingImdb }}</small></p>
+                                            <p class="card-text"><small class="text-muted">year: {{ movie.year }}</small></p>
+                                        </div>
+                                        {% if movie.included == false %}
+                                            <button class="btn btn-secondary btn-add-movie"
+                                                    id="add-{{ movie.kpId }}"
+                                                    data-movie-kpId="{{ movie.kpId }}"
+                                                    data-movie-name="{{ movie.name }}"
+                                                    data-movie-year="{{ movie.year }}"
+                                                    data-movie-desc="{{ movie.description }}"
+                                                    data-movie-ratingImdb="{{ movie.ratingImdb }}"
+                                                    data-movie-ratingKp="{{ movie.ratingKp }}"
+                                                    data-movie-posterUrl="{{ movie.posterUrl }}"
+                                                    type="button">
+                                                Add to my movie list
+                                            </button>
+                                        {% else %}
+                                            <a class="btn btn-success" href="{{ path('app_movie_list') }}">Go to my list</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                 {% endfor %}
-                </tbody>
-            </table>
+            </div>
         {% endif %}
     </div>
 {% endblock %}
 
 {% block javascripts %}
     <script>
-        function addToList(kpId, name, year, desc, ratingImdb, ratingKp, posterUrl) {
-            fetch('{{ path('app_movie_add') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type':'application/x-www-form-urlencoded',
-                },
-                body: `kpId=${kpId}&name=${name}&year=${year}&desc=${desc}&ratingImdb=${ratingImdb}&ratingkp=${ratingKp}&posterUrl=${posterUrl}`
+        window.onload = function() {
+            const btnAddMovie = document.querySelectorAll('.btn-add-movie');
+
+            btnAddMovie.forEach((elem)=>{
+                elem.addEventListener('click', (e) => {
+                    let target = e.target;
+                    let kpId = target.getAttribute('data-movie-kpId');
+                    let name = target.getAttribute('data-movie-name');
+                    let year = target.getAttribute('data-movie-year');
+                    let desc = target.getAttribute('data-movie-desc');
+                    let ratingImdb = target.getAttribute('data-movie-ratingImdb');
+                    let ratingKp = target.getAttribute('data-movie-ratingKp');
+                    let posterUrl = target.getAttribute('data-movie-posterUrl');
+
+                    fetch('{{ path('app_movie_add') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type':'application/x-www-form-urlencoded',
+                        },
+                        body: `kpId=${kpId}&name=${name}&year=${year}&desc=${desc}&ratingImdb=${ratingImdb}&ratingkp=${ratingKp}&posterUrl=${posterUrl}`
+                    }).then(response => {
+                        if (response.ok) {
+                            const btnAddToList = document.getElementById(`add-${kpId}`);
+                            const parent = btnAddToList.parentNode;
+
+                            let btnGoToList = document.createElement('a');
+                            btnGoToList.innerText = 'Go to my list'
+                            btnGoToList.classList.add('btn');
+                            btnGoToList.classList.add('btn-success');
+                            btnGoToList.setAttribute('href', '{{ path('app_movie_list') }}');
+                            parent.removeChild(btnAddToList);
+                            parent.appendChild(btnGoToList);
+                        } else {
+                            alert("Error HTTP: " + response.status);
+                        }
+                    });
+                })
             })
-        }
+        };
     </script>
 {% endblock javascripts %}
