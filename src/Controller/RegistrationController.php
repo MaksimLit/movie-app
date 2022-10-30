@@ -25,6 +25,10 @@ class RegistrationController extends AbstractController
         Authenticator $formAuthenticator
     ): Response
     {
+        if ($this->getUser() instanceof User) {
+            return $this->redirectToRoute('app_movie_list');
+        }
+
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
