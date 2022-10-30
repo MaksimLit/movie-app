@@ -42,5 +42,16 @@ services:
     volumes:
       - db_movieApp:/var/lib/postgresql/data:rw
 
+  postgres-test:
+    container_name: ${PROJECT_NAME}-postgres_test
+    build:
+      context: ./postgres
+    ports:
+      - "54323:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}_test
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
 volumes:
   db_movieApp:
