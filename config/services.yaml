@@ -20,5 +20,10 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    App\Tests\Resource\Fixture\:
+        resource: '%kernel.project_dir%/tests/Resource/Fixture/*'
+        tags:
+            - { "name": "doctrine.fixture.orm" }
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
