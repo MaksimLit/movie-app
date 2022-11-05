@@ -27,9 +27,15 @@
                         <h5 class="card-title">{{ movie.name }}</h5>
                         <p class="card-text movie-desc">{{ movie.description }}</p>
                         <div class="d-flex justify-content-start">
-                            <p class="card-text"><small class="text-muted">kinopoisk: {{ movie.ratingKp }} | </small></p>
-                            <p class="card-text"><small class="text-muted">IMDB: {{ movie.ratingImdb }} | </small></p>
-                            <p class="card-text"><small class="text-muted">year: {{ movie.year }}</small></p>
+                            <p class="card-text">
+                                <small class="text-muted ratingKp">kinopoisk: {{ movie.ratingKp }} | </small>
+                            </p>
+                            <p class="card-text">
+                                <small class="text-muted ratingImdb">IMDB: {{ movie.ratingImdb }} | </small>
+                            </p>
+                            <p class="card-text">
+                                <small class="text-muted year">year: {{ movie.year }}</small>
+                            </p>
                         </div>
                         {{ include('movie/_delete_form.html.twig') }}
                     </div>
