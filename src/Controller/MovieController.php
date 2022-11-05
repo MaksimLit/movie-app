@@ -83,7 +83,7 @@ class MovieController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'delete', methods: ['POST'])]
+    #[Route('/delete/{id}', name: 'delete', methods: ['POST'])]
     public function delete(Request $request, Movie $movie, MovieRepository $movieRepository): Response
     {
         if ($this->isCsrfTokenValid('delete'.$movie->getId(), $request->request->get('_token'))) {
