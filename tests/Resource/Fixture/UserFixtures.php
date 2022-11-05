@@ -8,7 +8,7 @@ use App\Tests\Tools\FakerTools;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
-class UserFixture extends Fixture
+class UserFixtures extends Fixture
 {
     use FakerTools;
 
