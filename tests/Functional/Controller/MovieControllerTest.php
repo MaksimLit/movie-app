@@ -7,17 +7,21 @@ use App\Entity\Movie;
 use App\Tests\AbstractControllerTest;
 use App\Tests\Resource\Fixture\MovieFixtures;
 use App\Tests\Resource\Fixture\UserFixtures;
+use Faker\Factory;
+use Faker\Generator;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 
 class MovieControllerTest extends AbstractControllerTest
 {
     private AbstractDatabaseTool $databaseTool;
+    private Generator $faker;
 
     public function setUp(): void
     {
         parent::setUp();
         $this->databaseTool = self::getContainer()->get(DatabaseToolCollection::class)->get();
+        $this->faker = Factory::create();
     }
 
     public function testShowSearchResultIfMovieFound(): void
@@ -51,13 +55,13 @@ class MovieControllerTest extends AbstractControllerTest
         $this->client->loginUser($user);
 
         $movieData = [
-            'kpId' => '397667',
-            'name' => 'Остров проклятых',
-            'year' => '2009',
-            'desc' => 'Два американских судебных пристава отправляются на один из островов в штате Массачусетс, чтобы расследовать исчезновение пациентки клиники для умалишенных преступников. При проведении расследования им придется столкнуться с паутиной лжи, обрушившимся ураганом и смертельным бунтом обитателей клиники.',
-            'ratingImdb' => '8.2',
-            'ratingkp' => '8.505',
-            'posterUrl' => 'https://st.kp.yandex.net/images/film_big/397667.jpg',
+            'kpId' => $this->faker->randomNumber(6),
+            'name' => $this->faker->title,
+            'year' => $this->faker->year,
+            'desc' => $this->faker->realText(40),
+            'ratingImdb' => $this->faker->randomFloat(2),
+            'ratingkp' => $this->faker->randomFloat(2),
+            'posterUrl' => $this->faker->imageUrl(185, 275),
         ];
 
         // Act
@@ -69,8 +73,8 @@ class MovieControllerTest extends AbstractControllerTest
         $jsonResult = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertEquals('Movie added successfully', $jsonResult['message']);
 
-        $movie = $this->em->getRepository(Movie::class)->findOneBy(['kpId' => 397667]);
-        $this->assertEquals('397667', $movie->getKpId());
+        $movie = $this->em->getRepository(Movie::class)->findOneBy(['kpId' => $movieData['kpId']]);
+        $this->assertEquals($movieData['kpId'], $movie->getKpId());
     }
 
     public function testShowMovieListIfListNotEmpty(): void
