@@ -1,0 +1,15 @@
+default:
+    suites:
+        default:
+            contexts:
+                - App\Tests\Behat\BackgroundContext
+                - Behat\MinkExtension\Context\MinkContext
+
+    extensions:
+        FriendsOfBehat\SymfonyExtension:
+            bootstrap: tests/bootstrap.php
+        Behat\MinkExtension:
+                    sessions:
+                        symfony:
+                            symfony: ~
+        DAMA\DoctrineTestBundle\Behat\ServiceContainer\DoctrineExtension: ~
