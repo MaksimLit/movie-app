@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Movie{% endblock %}
+{% block title %}Search Movie{% endblock %}
 
 {% block stylesheets %}
     <style>
@@ -34,6 +34,14 @@
                 </div>
             </form>
         </div>
+
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="flash-{{ label }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
 
         {% if movies|length > 0 %}
             <div class="d-flex align-content-around flex-wrap">
