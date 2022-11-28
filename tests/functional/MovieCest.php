@@ -21,7 +21,7 @@ class MovieCest
         $this->faker = Factory::create();
     }
 
-    public function tryShowSearchResultIfMovieFound(FunctionalTester $I): void
+    public function tryShowSearchResultIfMovieIsFound(FunctionalTester $I): void
     {
         $I->loadFixtures(UserFixtures::class, false);
         $user = $I->grabEntityFromRepository(User::class);
@@ -33,6 +33,67 @@ class MovieCest
 
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->see('Остров проклятых', 'h5');
+    }
+
+    public function tryShowSearchResultIfMovieIsNotFound(FunctionalTester $I): void
+    {
+        $I->loadFixtures(UserFixtures::class, false);
+        $user = $I->grabEntityFromRepository(User::class);
+        $I->amLoggedInAs($user);
+
+        $I->amOnPage('/movie/search');
+        $I->fillField('name', 'Название несуществующего фильма');
+        $I->click('search');
+
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeInSource('Nothing found');
+    }
+
+    public function tryShowMovieListIfListIsNotEmpty(FunctionalTester $I): void
+    {
+        $I->loadFixtures([UserFixtures::class, MovieFixtures::class], false);
+        $user = $I->grabEntityFromRepository(User::class);
+        $movie = $I->grabEntityFromRepository(Movie::class);
+
+        $I->amLoggedInAs($user);
+
+        $I->amOnPage('/movie/list');
+
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeInTitle('Movie list');
+        $I->see($movie->getName(), 'h5.card-title');
+        $I->see((string) $movie->getRatingKp(), 'small.ratingKp');
+        $I->see((string) $movie->getRatingImdb(), 'small.ratingImdb');
+        $I->see((string) $movie->getYear(), 'small.year');
+    }
+
+    public function tryShowMovieListIfListIsEmpty(FunctionalTester $I): void
+    {
+        $I->loadFixtures([UserFixtures::class], false);
+        $user = $I->grabEntityFromRepository(User::class);
+
+        $I->amLoggedInAs($user);
+
+        $I->amOnPage('/movie/list');
+
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeInSource('Your movie list is empty');
+    }
+
+    public function tryDeleteMovieFromList(FunctionalTester $I): void
+    {
+        $I->loadFixtures([UserFixtures::class, MovieFixtures::class], false);
+        $user = $I->grabEntityFromRepository(User::class);
+
+        $movie = $I->grabEntityFromRepository(Movie::class);
+        $movieId = $movie->getId();
+
+        $I->amLoggedInAs($user);
+
+        $I->amOnPage('/movie/list');
+        $I->click('Delete');
+
+        $I->dontSeeInRepository(Movie::class, ['id' => $movieId]);
     }
 
     public function tryAddMovieToList(FunctionalTester $I): void
@@ -57,39 +118,5 @@ class MovieCest
         $I->seeInRepository(Movie::class, [
             'kpId' => $movieData['kpId'],
         ]);
-    }
-
-    public function tryShowMovieListIfListNotEmpty(FunctionalTester $I): void
-    {
-        $I->loadFixtures([UserFixtures::class, MovieFixtures::class], false);
-        $user = $I->grabEntityFromRepository(User::class);
-        $movie = $I->grabEntityFromRepository(Movie::class);
-
-        $I->amLoggedInAs($user);
-
-        $I->amOnPage('/movie/list');
-
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeInTitle('Movie list');
-        $I->see($movie->getName(), 'h5.card-title');
-        $I->see((string) $movie->getRatingKp(), 'small.ratingKp');
-        $I->see((string) $movie->getRatingImdb(), 'small.ratingImdb');
-        $I->see((string) $movie->getYear(), 'small.year');
-    }
-
-    public function tryDeleteMovieFromList(FunctionalTester $I): void
-    {
-        $I->loadFixtures([UserFixtures::class, MovieFixtures::class], false);
-        $user = $I->grabEntityFromRepository(User::class);
-
-        $movie = $I->grabEntityFromRepository(Movie::class);
-        $movieId = $movie->getId();
-
-        $I->amLoggedInAs($user);
-
-        $I->amOnPage('/movie/list');
-        $I->click('Delete');
-
-        $I->dontSeeInRepository(Movie::class, ['id' => $movieId]);
     }
 }
