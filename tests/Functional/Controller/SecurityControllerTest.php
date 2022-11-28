@@ -41,4 +41,28 @@ class SecurityControllerTest extends AbstractControllerTest
         $this->assertResponseIsSuccessful();
         $this->assertPageTitleSame('Movie list');
     }
+
+    public function testLoginIfInvalidCredentials(): void
+    {
+        // Arrange
+        $this->client->followRedirects();
+
+        $executor = $this->databaseTool->loadFixtures([UserFixtures::class]);
+        $user = $executor->getReferenceRepository()->getReference(UserFixtures::REFERENCE);
+
+        // Act
+        $crawler = $this->client->request('GET', '/login');
+
+        $btnLogin = $crawler->selectButton('Login');
+        $formLogin = $btnLogin->form();
+
+        $formLogin['email'] = $user->getEmail();
+        $formLogin['password'] = $user->getPassword().'p';
+
+        $this->client->submit($formLogin);
+
+        // Assert
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('div.alert', 'Invalid credentials.');
+    }
 }

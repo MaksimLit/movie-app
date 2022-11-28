@@ -47,6 +47,73 @@ class MovieControllerTest extends AbstractControllerTest
         $this->assertSelectorTextContains('h5', 'Остров проклятых');
     }
 
+    public function testShowSearchResultIfMovieNotFound(): void
+    {
+        // Arrange
+        $this->client->followRedirects();
+
+        $executor = $this->databaseTool->loadFixtures([UserFixtures::class]);
+        $user = $executor->getReferenceRepository()->getReference(UserFixtures::REFERENCE);
+        $this->client->loginUser($user);
+
+        // Act
+        $crawler = $this->client->request('GET', '/movie/search');
+
+        $btnSearch = $crawler->selectButton('search');
+        $formSearch = $btnSearch->form();
+        $formSearch['name'] = 'Название несуществующего фильма';
+
+        $this->client->submit($formSearch);
+
+        // Assert
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('div.flash-notice', 'Nothing found');
+    }
+
+    public function testShowMovieListIfListIsEmpty(): void
+    {
+        // Arrange
+        $this->client->followRedirects();
+
+        $executor = $this->databaseTool->loadFixtures([UserFixtures::class]);
+        $user = $executor->getReferenceRepository()->getReference(UserFixtures::REFERENCE);
+
+        $this->client->loginUser($user);
+
+        // Act
+        $this->client->request('GET', '/movie/list');
+
+        // Assert
+        $this->assertResponseIsSuccessful();
+        $this->assertPageTitleSame('Movie list');
+        $this->assertSelectorTextContains('h3', 'Your movie list is empty');
+    }
+
+    public function testDeleteMovieFromList():void
+    {
+        // Arrange
+        $this->client->followRedirects();
+
+        $executor = $this->databaseTool->loadFixtures([UserFixtures::class, MovieFixtures::class]);
+        $user = $executor->getReferenceRepository()->getReference(UserFixtures::REFERENCE);
+        $movie = $executor->getReferenceRepository()->getReference(MovieFixtures::REFERENCE);
+
+        $this->client->loginUser($user);
+
+        // Act
+        $crawler = $this->client->request('GET', '/movie/list');
+
+        $deleteBtn = $crawler->selectButton('Delete');
+        $deleteForm = $deleteBtn->form();
+
+        $this->client->submit($deleteForm);
+
+        // Assert
+        $this->assertResponseIsSuccessful();
+        $this->assertPageTitleSame('Movie list');
+        $this->assertSelectorTextNotContains('body', $movie->getName());
+    }
+
     public function testAddMovieToList(): void
     {
         // Arrange
@@ -75,64 +142,5 @@ class MovieControllerTest extends AbstractControllerTest
 
         $movie = $this->em->getRepository(Movie::class)->findOneBy(['kpId' => $movieData['kpId']]);
         $this->assertEquals($movieData['kpId'], $movie->getKpId());
-    }
-
-    public function testShowMovieListIfListNotEmpty(): void
-    {
-        // Arrange
-        $this->client->followRedirects();
-
-        $executor = $this->databaseTool->loadFixtures([UserFixtures::class, MovieFixtures::class]);
-        $user = $executor->getReferenceRepository()->getReference(UserFixtures::REFERENCE);
-
-        /** @var Movie $movie */
-        $movie = $executor->getReferenceRepository()->getReference(MovieFixtures::REFERENCE);
-
-        $this->client->loginUser($user);
-
-        // Act
-        $crawler = $this->client->request('GET', '/movie/list');
-
-        // Assert
-        $this->assertResponseIsSuccessful();
-        $this->assertPageTitleSame('Movie list');
-
-        $this->assertSelectorTextContains('h5.card-title', $movie->getName());
-        $this->assertSelectorTextContains('small.ratingKp', (string) $movie->getRatingKp());
-        $this->assertSelectorTextContains('small.ratingImdb', (string) $movie->getRatingImdb());
-        $this->assertSelectorTextContains('small.year', (string) $movie->getYear());
-
-        $postUrl = $crawler->filter('img')->eq(0)->attr('src');
-        $this->assertEquals(trim($postUrl), $movie->getPosterUrl());
-    }
-
-    public function testDeleteMovieFromList():void
-    {
-        // Arrange
-        $this->client->followRedirects();
-
-        $executor = $this->databaseTool->loadFixtures([UserFixtures::class, MovieFixtures::class]);
-        $user = $executor->getReferenceRepository()->getReference(UserFixtures::REFERENCE);
-
-        /** @var Movie $movie */
-        $movie = $executor->getReferenceRepository()->getReference(MovieFixtures::REFERENCE);
-        $movieId = $movie->getId();
-
-        $this->client->loginUser($user);
-
-        // Act
-        $crawler = $this->client->request('GET', '/movie/list');
-
-        $deleteBtn = $crawler->selectButton('Delete');
-        $deleteForm = $deleteBtn->form();
-
-        $this->client->submit($deleteForm);
-
-        // Assert
-        $this->assertResponseIsSuccessful();
-        $this->assertPageTitleSame('Movie list');
-
-        $movie = $this->em->getRepository(Movie::class)->find($movieId);
-        $this->assertEquals(null, $movie);
     }
 }
