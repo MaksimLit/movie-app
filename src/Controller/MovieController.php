@@ -26,17 +26,21 @@ class MovieController extends AbstractController
             $movieListFromKp = $kinopoiskService->searchByName($movieName);
             $movieListFromDb = $movieRepository->getMoviesByUser($user);
 
-            $items = [];
             foreach ($movieListFromKp as $key => $movieFromKp) {
-                $items[] = $movieFromKp->setIsIncluded(false);
+                $movies[] = $movieFromKp->setIsIncluded(false);
                 foreach ($movieListFromDb as $movieFromDb) {
                     if ($movieFromKp->getKpId() === $movieFromDb->getKpId()) {
-                        $items[$key] = $movieFromKp->setIsIncluded(true);
+                        $movies[$key] = $movieFromKp->setIsIncluded(true);
                     }
                 }
             }
 
-            $movies = $items;
+            if (!$movies) {
+                $this->addFlash(
+                    'notice',
+                    'Nothing found'
+                );
+            }
         }
 
         return $this->render('movie/search.html.twig', [

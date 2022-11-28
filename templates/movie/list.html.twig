@@ -13,7 +13,8 @@
 {% block body %}
     {{ include('movie/_menu.html.twig') }}
 
-    {% for key, movie in movies %}
+    {% if movies is not empty%}
+        {% for key, movie in movies %}
         <div class="card mt-3 p-1">
             <div class="row g-0">
                 <div class="col-md-2">
@@ -42,10 +43,10 @@
                 </div>
             </div>
         </div>
+    {% endfor %}
     {% else %}
         <div>
-            no records found
+            <h3>Your movie list is empty</h3>
         </div>
-    {% endfor %}
-
+    {% endif %}
 {% endblock %}
