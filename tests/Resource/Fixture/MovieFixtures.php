@@ -19,13 +19,13 @@ class MovieFixtures extends Fixture implements DependentFixtureInterface
     {
         $viewer = $this->getReference(UserFixtures::REFERENCE);
 
-        $name = $this->getFaker()->name;
+        $name = $this->getFaker()->title;
         $year = $this->getFaker()->year;
         $desc = $this->getFaker()->realText(40);
         $kpId = $this->getFaker()->randomNumber(6);
         $ratingImdb = $this->getFaker()->randomFloat(2);
         $ratingKp = $this->getFaker()->randomFloat(2);
-        $posterUrl = $this->getFaker()->imageUrl(640, 480, 'animals', true);
+        $posterUrl = $this->getFaker()->imageUrl();
 
         $movie = (new Movie())
             ->setName($name)
