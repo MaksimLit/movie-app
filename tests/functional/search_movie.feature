@@ -6,8 +6,14 @@ Feature: search movie
   Background:
     When I go to the page as an authorized user
 
-  Scenario: Try search movie
+  Scenario: Try show search result if movie is found
     Given I am on "/movie/search"
     And I fill in "name" with "Остров проклятых"
     When I click "search"
     Then I should see the "Остров проклятых" in the "h5".
+
+  Scenario: Try show search result if movie is not found
+    Given I am on "/movie/search"
+    And I fill in "name" with "Название несуществующего фильма"
+    When I click "search"
+    Then I see "Nothing found"

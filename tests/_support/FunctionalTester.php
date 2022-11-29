@@ -42,14 +42,6 @@ class FunctionalTester extends \Codeception\Actor
     }
 
     /**
-     * @Then /^I should see the title "([^"]*)"\.$/
-     */
-    public function iShouldSeeTheTitle($title)
-    {
-        $this->seeInTitle($title);
-    }
-
-    /**
      * @Given /^I fill in "([^"]*)" with "([^"]*)"$/
      */
     public function iFillInWith($field, $value)
@@ -89,5 +81,21 @@ class FunctionalTester extends \Codeception\Actor
     public function iTick($option)
     {
         $this->checkOption($option);
+    }
+
+    /**
+     * @Then /^I see "([^"]*)"$/
+     */
+    public function iSee($arg1)
+    {
+        $this->seeInSource($arg1);
+    }
+
+    /**
+     * @Then /^I should see the title "([^"]*)"$/
+     */
+    public function iShouldSeeTheTitle($arg1)
+    {
+        $this->seeInTitle($arg1);
     }
 }

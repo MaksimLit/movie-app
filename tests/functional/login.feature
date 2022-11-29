@@ -6,9 +6,16 @@ Feature: login
   Background:
     When I go to the page as an unauthorized user
 
-  Scenario: Try login
+  Scenario: Try login if credential is correct
     Given I am on "/login"
-    And I fill in "email" with "test@mail.com"
+    When I fill in "email" with "test@mail.com"
     And I fill in "password" with "123456"
-    When I click "Login"
-    Then I should see the title "Movie list".
+    And I click "Login"
+    Then I should see the title "Movie list"
+
+  Scenario: Try login if credential is not correct
+    Given I am on "/login"
+    When I fill in "email" with "test@mail.com"
+    And I fill in "password" with "12345"
+    And I click "Login"
+    Then I see "Invalid credentials"
