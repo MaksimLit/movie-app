@@ -9,3 +9,10 @@ Feature: search movie
     And I fill in "name" with "Остров проклятых"
     When I press "search"
     Then I should see "Остров проклятых"
+
+  Scenario: Try search movie
+    Given I am logged in as a user
+    And I am on "/movie/search"
+    And I fill in "name" with "Название несуществующего фильма"
+    When I press "search"
+    Then I should see "Nothing found"
